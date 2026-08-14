@@ -1,4 +1,4 @@
-﻿"""
+"""
 Media-Engine: Video Rendering, Audio Stitching & Captions
 Integrates with Higgsfield / Seedance 2.5 and FFmpeg post-processing.
 """

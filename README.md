@@ -1,4 +1,4 @@
-﻿# ğŸ¬ Media Engine
+# ğŸ¬ Media Engine
 
 Higgsfield / Seedance 2.5 video uretimi, seslendirme, render ve gorsel isleme motoru.
 
