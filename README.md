@@ -1,25 +1,68 @@
-# 🎬 Voyagerroc Media Engine
+# Voyagerroc Media Engine
 
-> Üretilen 3 bağımsız video sahnesini (3 x 10s) sinematik olarak birleştiren (**FFmpeg Concat**), ses miksajını yapan ve render süreçlerini yöneten **Medya İşleme Motoru**.
+Yazılı sahne planlarını (prompt) fiilen **videoya dönüştüren** medya katmanı. Ekosistemdeki rolü: `voyagerroc-agents` ve `content-engine` tarafında hazırlanan 3'lü sahne (3 x 10s) promptlarını alıp Higgsfield Studio üzerinde render işini başlatmak ve çıkan videoyu bilgisayara indirmektir.
 
----
+Depo iki parçadan oluşur:
 
-## 🏛️ Montaj & Medya İşleme Hattı
+- **`src/renderers/higgsfield_runner.js` — çalışır durumda:** `puppeteer-core` ile bilgisayardaki gerçek Chrome'u açar, higgsfield.ai/studio sayfasına gider, "Unlimited" modunu seçmeye çalışır, 8-elemanlı sahne promptunu metin kutusuna yazar, Generate butonunu tetikler ve indirme klasörünü `C:\Users\erol_\Downloads` olarak ayarlar. Prompt şu an dosyanın içinde sabittir (Shot 1 örneği).
+- **`src/processors/video_processor.py` — iskelet:** `MediaEngine.assemble_shots()` sınıfı, 3 sahneyi FFmpeg concat ile tek videoda birleştirmek üzere tasarlanmıştır; şimdilik yalnızca hedef dosya yolunu loglayıp döndürür, FFmpeg mantığı henüz yazılmamıştır.
+
+> **Durum:** Prototip. Tarayıcı otomasyonu gerçek ve çalıştırılabilir; video birleştirme (FFmpeg) tarafı iskelet halindedir.
+
+## Render akışı
 
 ```mermaid
-graph LR
-    Shot1[🎥 Shot 1 : 10s] & Shot2[🎥 Shot 2 : 10s] & Shot3[🎥 Shot 3 : 10s] --> Stitcher[🎬 FFmpeg Video Assembler]
-    AudioLayer[🔊 Native Audio & SFX] --> AudioMixer[🎚️ Audio Mixer & Equalizer]
-    
-    Stitcher & AudioMixer --> MasterVideo[🎞️ 30s Master Cinematic MP4]
-    MasterVideo --> OutputDir[📥 C:/Users/erol_/Downloads/]
+flowchart TD
+    A["node src/renderers/higgsfield_runner.js"] --> B["puppeteer-core: yerel Chrome açılır (görünür pencere, ayrı profil)"]
+    B --> C["higgsfield.ai/studio sayfasına gidilir"]
+    C --> D["İndirme klasörü Downloads olarak ayarlanır (CDP)"]
+    D --> E["'Unlimited' seçeneği aranır ve tıklanır"]
+    E --> F["8-elemanlı sahne promptu metin kutusuna yazılır"]
+    F --> G["Generate / Create butonu tetiklenir"]
+    G --> H["180 sn beklenir: render + otomatik indirme"]
+    H --> I["MP4 dosyası Downloads klasörüne iner"]
+    I -. planlanan .-> J["video_processor.assemble_shots(): 3 sahne -> final_render.mp4"]
 ```
 
----
+## Kurulum ve çalıştırma
 
-## 📂 Dizin Yapısı & Sorumlulukları
-- `src/processors/video_processor.py`: FFmpeg ile 3 sahneyi dikişsiz birleştiren montajcı.
-- `src/renderers/higgsfield_runner.js`: Higgsfield & Seedance 2.5 için yerel render tetikleyicisi.
+Gereksinimler: Node.js, `C:\Program Files\Google\Chrome\Application\chrome.exe` yolunda kurulu Chrome ve açılan Chrome profilinde Higgsfield hesabına giriş yapılmış olması.
+
+```bash
+npm install                                # puppeteer-core kurulur
+node src/renderers/higgsfield_runner.js    # runner'ı başlatır
+```
+
+Betik; adım adım Türkçe log basar, Generate'i tetikledikten sonra tarayıcıyı 180 saniye açık tutar ve videonun Downloads klasörüne inmesini bekler.
+
+## Klasör yapısı
+
+```
+media-engine/
+├── src/
+│   ├── renderers/
+│   │   └── higgsfield_runner.js   # Puppeteer tabanlı Higgsfield otomasyonu (çalışır)
+│   └── processors/
+│       └── video_processor.py     # FFmpeg birleştirme iskeleti (henüz stub)
+├── docs/                          # (henüz boş)
+├── package.json                   # bağımlılık: puppeteer-core ^22
+└── README.md
+```
+
+## Ekosistem: Voyagerroc-Automation
+
+Bu depo, Voyagerroc-Automation organizasyonundaki içerik/otomasyon ekosisteminin bir parçasıdır:
+
+| Depo | Rolü |
+| --- | --- |
+| [automation-os](https://github.com/Voyagerroc-Automation/automation-os) | Orkestrasyon beyni ve API kapısı |
+| [content-engine](https://github.com/Voyagerroc-Automation/content-engine) | İçerik / senaryo ve hook üretimi |
+| **media-engine** (bu depo) | Video / ses / görsel işleme ve render |
+| [voyagerroc-agents](https://github.com/Voyagerroc-Automation/voyagerroc-agents) | Otonom ajanlar (yönetmen katmanı) |
+| [automation-dashboard](https://github.com/Voyagerroc-Automation/automation-dashboard) | İzleme ve kontrol paneli |
+| [infrastructure](https://github.com/Voyagerroc-Automation/infrastructure) | Docker / Redis / nginx altyapısı |
+| [giant-automation-library](https://github.com/Voyagerroc-Automation/giant-automation-library) | n8n iş akışları |
+| [youtube-shorts-pipeline](https://github.com/Voyagerroc-Automation/youtube-shorts-pipeline) | Yayınlama (YouTube Shorts) |
 
 ---
 © 2026 Voyagerroc Automation. All rights reserved.
