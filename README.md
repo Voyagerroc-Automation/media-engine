@@ -35,6 +35,24 @@ node src/renderers/higgsfield_runner.js    # runner'ı başlatır
 
 Betik; adım adım Türkçe log basar, Generate'i tetikledikten sonra tarayıcıyı 180 saniye açık tutar ve videonun Downloads klasörüne inmesini bekler.
 
+## Yapılandırma
+
+Her iki bileşen de ortam değişkenleriyle yapılandırılabilir; değişken tanımlı değilse aşağıdaki varsayılanlar kullanılır.
+
+### `src/renderers/higgsfield_runner.js`
+
+| Değişken | Varsayılan | Amaç |
+| --- | --- | --- |
+| `HF_CHROME_PATH` | `C:\Program Files\Google\Chrome\Application\chrome.exe` | Puppeteer'ın başlatacağı Chrome çalıştırılabilir dosyasının yolu |
+| `HF_DOWNLOAD_DIR` | `C:\Users\erol_\Downloads` | Render edilen MP4'ün indirileceği klasör (CDP `Page.setDownloadBehavior` ile ayarlanır) |
+| `HF_PROFILE_DIR` | betiğe göre `../../../../.gemini/antigravity-ide/scratch/chrome_session_clean` (depo konumuna bağlı) | Higgsfield oturumunun saklandığı ayrı Chrome kullanıcı profili; klasör yoksa otomatik oluşturulur |
+
+### `src/processors/video_processor.py`
+
+| Değişken | Varsayılan | Amaç |
+| --- | --- | --- |
+| `MEDIA_ENGINE_OUTPUT_DIR` | `C:/Users/erol_/Downloads` | `MediaEngine.assemble_shots()` çıktısının (`final_render.mp4`) yazılacağı klasör |
+
 ## Klasör yapısı
 
 ```
