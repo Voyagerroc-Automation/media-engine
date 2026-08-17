@@ -2,10 +2,13 @@ const puppeteer = require('puppeteer-core');
 const fs = require('fs');
 const path = require('path');
 
-const CHROME_PATH = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-const DOWNLOAD_DIR = "C:\\Users\\erol_\\Downloads";
+const CHROME_PATH = process.env.HF_CHROME_PATH || "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+const DOWNLOAD_DIR = process.env.HF_DOWNLOAD_DIR || "C:\\Users\\erol_\\Downloads";
+const PROFILE_DIR = process.env.HF_PROFILE_DIR
+    || path.resolve(__dirname, '../../../../.gemini/antigravity-ide/scratch/chrome_session_clean');
 
-const promptText = `[SHOT 1 | 00:00-00:10 | 50mm Medium Tracking - Setup]
+// Example scene prompt submitted to Higgsfield Studio (Shot 1 sample).
+const EXAMPLE_PROMPT = `[SHOT 1 | 00:00-00:10 | 50mm Medium Tracking - Setup]
 Subject: Cybernetic Ronin samurai in carbon fiber battle armor standing centered in combat-ready posture on wet metal surface.
 Context: Rain-slicked skyscraper rooftop in neo-Istanbul 2088, 20m dense volumetric fog, cold cyan and magenta rim lighting.
 Style: Cinematic 35mm film grain, anamorphic lens flare, photorealistic rain streaks.
@@ -17,13 +20,13 @@ Native Audio: Whispered dialogue "The city never sleeps... nor do I." Heavy rain
 
 (async () => {
     console.log("=================================================================");
-    console.log("ğŸ¬ VOYAGERROC OTONOM HIGGSFIELD TESTÄ° BAÅLATILIYOR");
+    console.log("🎬 VOYAGERROC OTONOM HIGGSFIELD TESTİ BAŞLATILIYOR");
     console.log("=================================================================");
-    console.log(`ğŸ¯ Hedef: Higgsfield Studio`);
-    console.log(`â™¾ï¸  Unlimited Modu: ZORUNLU AKTÄ°F`);
-    console.log(`ğŸ“¥ Ä°ndirilecek KlasÃ¶r: ${DOWNLOAD_DIR}`);
+    console.log(`🎯 Hedef: Higgsfield Studio`);
+    console.log(`♾️  Unlimited Modu: ZORUNLU AKTİF`);
+    console.log(`📥 İndirilecek Klasör: ${DOWNLOAD_DIR}`);
 
-    const profileDir = path.resolve(__dirname, '../../../../.gemini/antigravity-ide/scratch/chrome_session_clean');
+    const profileDir = PROFILE_DIR;
     if (!fs.existsSync(profileDir)) fs.mkdirSync(profileDir, { recursive: true });
 
     const browser = await puppeteer.launch({
@@ -47,14 +50,14 @@ Native Audio: Whispered dialogue "The city never sleeps... nor do I." Heavy rain
     });
 
     try {
-        console.log("\n[1] Higgsfield Studio aÃ§Ä±lÄ±yor...");
+        console.log("\n[1] Higgsfield Studio açılıyor...");
         await page.goto('https://higgsfield.ai/studio', { waitUntil: 'networkidle2', timeout: 60000 });
 
-        console.log("[2] Sayfa elementleri taranÄ±yor (8 saniye)...");
+        console.log("[2] Sayfa elementleri taranıyor (8 saniye)...");
         await new Promise(r => setTimeout(r, 8000));
 
-        // 1. Unlimited Modunu Bul ve TÄ±kla
-        console.log("[3] 'Unlimited' seÃ§eneÄŸi aranÄ±yor...");
+        // 1. Unlimited Modunu Bul ve Tıkla
+        console.log("[3] 'Unlimited' seçeneği aranıyor...");
         try {
             const clicked = await page.evaluate(() => {
                 const allElements = Array.from(document.querySelectorAll('*'));
@@ -67,16 +70,16 @@ Native Audio: Whispered dialogue "The city never sleeps... nor do I." Heavy rain
                 }
                 return false;
             });
-            if (clicked) console.log("    âœ… Unlimited seÃ§eneÄŸi otomatik aktif edildi!");
-            else console.log("    â„¹ï¸ Unlimited kontrolÃ¼ yapÄ±ldÄ±.");
+            if (clicked) console.log("    ✅ Unlimited seçeneği otomatik aktif edildi!");
+            else console.log("    ℹ️ Unlimited kontrolü yapıldı.");
         } catch (e) {
-            console.log(`    â„¹ï¸ Unlimited arama: ${e.message}`);
+            console.log(`    ℹ️ Unlimited arama: ${e.message}`);
         }
 
         await new Promise(r => setTimeout(r, 2000));
 
-        // 2. Prompt GiriÅŸ AlanÄ±nÄ± Bul ve Doldur
-        console.log("[4] Prompt giriÅŸ kutusu aranÄ±yor ve 8-elemanlÄ± prompt yazÄ±lÄ±yor...");
+        // 2. Prompt Giriş Alanını Bul ve Doldur
+        console.log("[4] Prompt giriş kutusu aranıyor ve 8-elemanlı prompt yazılıyor...");
         const inputFound = await page.evaluate((prompt) => {
             const targets = document.querySelectorAll('textarea, div[contenteditable="true"], input[type="text"], [role="textbox"]');
             for (const t of targets) {
@@ -93,17 +96,17 @@ Native Audio: Whispered dialogue "The city never sleeps... nor do I." Heavy rain
                 }
             }
             return false;
-        }, promptText);
+        }, EXAMPLE_PROMPT);
 
         if (inputFound) {
-            console.log("    âœ… Prompt baÅŸarÄ±yla metin kutusuna aktarÄ±ldÄ±!");
+            console.log("    ✅ Prompt başarıyla metin kutusuna aktarıldı!");
         } else {
-            console.log("    âš ï¸ Prompt alanÄ± tespit edilemedi.");
+            console.log("    ⚠️ Prompt alanı tespit edilemedi.");
         }
 
         await new Promise(r => setTimeout(r, 2000));
 
-        // 3. Generate / Create Butonuna TÄ±kla
+        // 3. Generate / Create Butonuna Tıkla
         console.log("[5] 'Generate' butonu tetikleniyor...");
         const generateSuccess = await page.evaluate(() => {
             const buttons = Array.from(document.querySelectorAll('button, div[role="button"], a'));
@@ -118,16 +121,16 @@ Native Audio: Whispered dialogue "The city never sleeps... nor do I." Heavy rain
         });
 
         if (generateSuccess) {
-            console.log("    ğŸš€ GENERATE BUTONUNA BAÅARIYLA TIKLANDI! VÄ°DEO RENDER BAÅLATILDI!");
+            console.log("    🚀 GENERATE BUTONUNA BAŞARIYLA TIKLANDI! VİDEO RENDER BAŞLATILDI!");
         } else {
-            console.log("    â„¹ï¸ Generate butonu hazÄ±r durumda.");
+            console.log("    ℹ️ Generate butonu hazır durumda.");
         }
 
-        console.log("\n[6] Video render sÃ¼reci aktif! TarayÄ±cÄ± 180 saniye boyunca aÃ§Ä±k tutulacak...");
+        console.log("\n[6] Video render süreci aktif! Tarayıcı 180 saniye boyunca açık tutulacak...");
         console.log("=================================================================");
         await new Promise(r => setTimeout(r, 180000));
 
     } catch (err) {
-        console.log(`âŒ Hata: ${err.message}`);
+        console.log(`❌ Hata: ${err.message}`);
     }
 })();
